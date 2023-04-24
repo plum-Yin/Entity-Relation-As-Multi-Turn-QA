@@ -16,7 +16,7 @@ def aligment_ann(original, newtext, ann_file, offset):
     ends = {}
     for line in open(ann_file):
         if line.startswith('T'):
-            annots = line.rstrip().split("\t", 2)
+            annots = line.rstrip().split("\t", 2)  # 第二个参数为分割次数
             typeregion = annots[1].split(" ")
             start = int(typeregion[1]) - offset
             end = int(typeregion[2]) - offset
@@ -57,8 +57,7 @@ def aligment_ann(original, newtext, ann_file, offset):
             # ignore extra "." for stanford
             newidx += 1
         else:
-            assert False, "%d\t$%s$\t$%s$" % (
-                orgidx, original[orgidx:orgidx + 20], newtext[newidx:newidx + 20])
+            assert False, "%d\t$%s$\t$%s$" % (orgidx, original[orgidx:orgidx + 20], newtext[newidx:newidx + 20])
         if orgidx in terms:
             for l in terms[orgidx]:
                 l[0] = newidx
@@ -75,16 +74,13 @@ def aligment_ann(original, newtext, ann_file, offset):
     for ts in terms.values():
         for term in ts:
             if term[4] == "":
-                entities.append([term[2], term[3], term[0],
-                                 term[1], newtext[term[0]:term[1]]])
+                entities.append([term[2], term[3], term[0], term[1], newtext[term[0]:term[1]]])
             else:
                 # assert newtext[term[0]:term[1]].replace("&AMP;", "&").replace("&amp;", "&").replace(" ", "").replace(
                 #    "\n", "") == term[4].replace(" ", "").lower(), newtext[term[0]:term[1]] + "<=>" + term[4]
                 assert newtext[term[0]:term[1]].replace(" ", "").replace('\n', "").replace("&AMP;", "&").replace("&amp;", "&") == \
-                    term[4].replace(" ", "").lower(
-                ), newtext[term[0]:term[1]] + "<=>" + term[4]
-                entities.append([term[2], term[3], term[0], term[1],
-                                 newtext[term[0]:term[1]].replace("\n", " ")])
+                       term[4].replace(" ", "").lower(), newtext[term[0]:term[1]] + "<=>" + term[4]
+                entities.append([term[2], term[3], term[0], term[1], newtext[term[0]:term[1]].replace("\n", " ")])
             dict1[term[2]] = i
             i += 1
     for rel in annotation:
@@ -105,10 +101,10 @@ def aligment_ann(original, newtext, ann_file, offset):
 def passage_blocks(txt, window_size, overlap):
     blocks = []
     regions = []
-    for i in range(0, len(txt), window_size-overlap):
-        b = txt[i:i+window_size]
+    for i in range(0, len(txt), window_size - overlap):
+        b = txt[i:i + window_size]
         blocks.append(b)
-        regions.append((i, i+window_size))
+        regions.append((i, i + window_size))
     return blocks, regions
 
 
@@ -131,13 +127,12 @@ def get_block_er(txt, entities, relations, window_size, overlap, tokenizer):
         es = []
         for j, (entity_type, start, end, entity_str) in enumerate(entities):
             if start >= s and end <= e:
-                nstart, nend = start-s, end-s
+                nstart, nend = start - s, end - s
                 if tokenizer.convert_tokens_to_string(blocks[i][nstart:nend]) == entity_str:
                     es.append((entity_type, nstart, nend, entity_str))
-                    e_dict[j] = e_dict.get(j, [])+[i]
+                    e_dict[j] = e_dict.get(j, []) + [i]
                 else:
-                    print(
-                        "The entity string and its corresponding index are inconsistent")
+                    print("The entity string and its corresponding index are inconsistent")
         ber[i][0] = blocks[i]
         ber[i][1].extend(es)
     for r, e1i, e2i in relations:
@@ -148,12 +143,8 @@ def get_block_er(txt, entities, relations, window_size, overlap, tokenizer):
         intersec = set.intersection(set(i1s), set(i2s))
         if intersec:
             for i in intersec:
-                t1, s1, e1, es1 = entities[e1i][0], entities[e1i][1] - \
-                    block_range[i][0], entities[e1i][2] - \
-                    block_range[i][0], entities[e1i][3]
-                t2, s2, e2, es2 = entities[e2i][0], entities[e2i][1] - \
-                    block_range[i][0], entities[e2i][2] - \
-                    block_range[i][0], entities[e2i][3]
+                t1, s1, e1, es1 = entities[e1i][0], entities[e1i][1] - block_range[i][0], entities[e1i][2] - block_range[i][0], entities[e1i][3]
+                t2, s2, e2, es2 = entities[e2i][0], entities[e2i][1] - block_range[i][0], entities[e2i][2] - block_range[i][0], entities[e2i][3]
                 ber[i][2].append((r, (t1, s1, e1, es1), (t2, s2, e2, es2)))
         else:
             print("The two entities of the relationship are not on the same sentence")
@@ -166,11 +157,9 @@ def get_question(question_templates, head_entity, relation_type=None, end_entity
         head_entity: (entity_type,start_idx,end_idx,entity_string) or entity_type
     """
     if relation_type == None:
-        question = question_templates['qa_turn1'][head_entity[0]] if isinstance(
-            head_entity, tuple) else question_templates['qa_turn1'][head_entity]
+        question = question_templates['qa_turn1'][head_entity[0]] if isinstance(head_entity, tuple) else question_templates['qa_turn1'][head_entity]
     else:
-        question = question_templates['qa_turn2'][str(
-            (head_entity[0], relation_type, end_entity_type))]
+        question = question_templates['qa_turn2'][str((head_entity[0], relation_type, end_entity_type))]
         question = question.replace('XXX', head_entity[3])
     return question
 
@@ -218,8 +207,8 @@ def block2qas(ber, dataset_tag, title="", threshold=1, max_distance=45):
         for i, ent1 in enumerate(ents1):
             start = ent1[1]
             qas = {}
-            for j, ent2 in enumerate(ents1[i+1:], i+1):
-                if ent2[1] > start+max_distance:
+            for j, ent2 in enumerate(ents1[i + 1:], i + 1):
+                if ent2[1] > start + max_distance:
                     break
                 else:
                     head_type, end_type = ent1[0], ent2[0]
@@ -296,30 +285,25 @@ def process(data_dir, output_dir, tokenizer, is_test, window_size, overlap, data
             raw_txt = f.read()
             txt = [t for t in raw_txt.split('\n') if t.strip()]
         # get the title information, the title will be added to all windows of a passage
-        title = re.search('[A-Za-z_]+[A-Za-z]', txt[0]
-                          ).group().split('-')+txt[1].strip().split()
+        title = re.search('[A-Za-z_]+[A-Za-z]', txt[0]).group().split('-') + txt[1].strip().split()
         title = " ".join(title)
         title = tokenizer.tokenize(title)
         ntxt = ' '.join(txt[3:])
         ntxt1 = tokenizer.tokenize(ntxt)
         ntxt2 = tokenizer.convert_tokens_to_string(ntxt1)
         offset = raw_txt.index(txt[3])
-        entities, relations = aligment_ann(
-            raw_txt[offset:], ntxt2, ann_path, offset)
-        # convert entitiy index from char level to wordpiece level
+        entities, relations = aligment_ann(raw_txt[offset:], ntxt2, ann_path, offset)
+        # convert entity index from char level to wordpiece level
         entities = char_to_wordpiece(ntxt2, entities, tokenizer)
         if is_test:
-            data.append({"title": title, "passage": ntxt1,
-                         "entities": entities, "relations": relations})
+            data.append({"title": title, "passage": ntxt1, "entities": entities, "relations": relations})
         else:
-            block_er = get_block_er(
-                ntxt1, entities, relations, window_size, overlap, tokenizer)
+            block_er = get_block_er(ntxt1, entities, relations, window_size, overlap, tokenizer)
             for ber in block_er:
-                data.append(block2qas(ber, dataset_tag,
-                                      title, threshold, max_distance))
+                data.append(block2qas(ber, dataset_tag, title, threshold, max_distance))
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    save_path = os.path.join(output_dir, os.path.split(data_dir)[-1]+".json")
+    save_path = os.path.join(output_dir, os.path.split(data_dir)[-1] + ".json")
     with open(save_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, sort_keys=True, indent=4)
 
@@ -327,8 +311,7 @@ def process(data_dir, output_dir, tokenizer, is_test, window_size, overlap, data
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_dir", default='./data/raw_data/ACE2005/train')
-    parser.add_argument(
-        "--dataset_tag", choices=["ace2004", 'ace2005'], default='ace2005')
+    parser.add_argument("--dataset_tag", choices=["ace2004", 'ace2005'], default='ace2005')
     parser.add_argument("--window_size", type=int, default=300)
     parser.add_argument("--overlap", type=int, default=15)
     parser.add_argument("--is_test", action="store_true")
@@ -336,7 +319,7 @@ if __name__ == "__main__":
     parser.add_argument("--output_base_dir",
                         default="./data/cleaned_data/ACE2005")
     parser.add_argument("--pretrained_model_path",
-                        default='/home/wangnan/pretrained_models/bert-base-uncased')
+                        default='bert-base-uncased')
     parser.add_argument("--max_distance", type=int, default=45,
                         help="used to filter relations by distance from the head entity")
     args = parser.parse_args()
@@ -346,6 +329,7 @@ if __name__ == "__main__":
     else:
         output_dir = args.output_base_dir
     from transformers import BertTokenizer
+
     tokenizer = BertTokenizer.from_pretrained(args.pretrained_model_path)
     process(args.data_dir, output_dir, tokenizer, args.is_test,
             args.window_size, args.overlap, args.dataset_tag, args.threshold, args.max_distance)
