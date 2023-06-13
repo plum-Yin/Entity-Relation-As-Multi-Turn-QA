@@ -49,6 +49,5 @@ class MyModel(nn.Module):
             return loss, (loss_t1.item(), loss_t2.item())
         else:
             # for prediction
-            tag_idxs = torch.argmax(
-                tag_logits, dim=-1).squeeze(-1)  # (batch,seq_len)
+            tag_idxs = torch.argmax(tag_logits, dim=-1).squeeze(-1)  # (batch,seq_len)
             return tag_idxs
