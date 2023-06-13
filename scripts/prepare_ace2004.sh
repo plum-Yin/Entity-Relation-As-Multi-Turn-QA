@@ -1,8 +1,8 @@
-HOME=/home/wangnan
-REPO=$HOME/ERE-MQA
+HOME=/mnt/d/pywork/Github/
+REPO=$HOME/Entity-Relation-As-Multi-Turn-QA
 PRETRAINED_MODEL_PATH=$HOME/pretrained_models/bert-base-uncased
 
-#training data
+# training data
 python $REPO/preprocess.py \
 --data_dir $REPO/data/raw_data/ACE2004/train0 \
 --dataset_tag ace2004 \
@@ -13,7 +13,7 @@ python $REPO/preprocess.py \
 --output_base_dir $REPO/data/cleaned_data/ACE2004 \
 --pretrained_model_path  $PRETRAINED_MODEL_PATH 
 
-#test data
+# test data
 python $REPO/preprocess.py \
 --data_dir $REPO/data/raw_data/ACE2004/test0 \
 --dataset_tag ace2004 \
