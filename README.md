@@ -46,6 +46,14 @@ Following these steps to obtain training data:
 1. Unzip ace2004.zip and ace2005.zip into data/raw_data
 2. Preprocess the data with `preprocess.py`.The example used can be found in `scripts/prepare_ace2005.sh`
 
+---
+
+处理后的数据，含有：
+- entity
+- relation
+- passage
+- title
+
 ## Pretrained Model
 
 We use [BERT-Base-Uncased](https://huggingface.co/bert-base-uncased)
