@@ -16,12 +16,12 @@ class MyModel(nn.Module):
     def forward(self, input, attention_mask, token_type_ids, context_mask=None, turn_mask=None, target_tags=None):
         """
         Args:
-            input: （batch,seq_len）
+            input: (batch,seq_len)
             attention_mask: (batch,seq_len)
             token_type_ids: (batch,seq_len)
             context_mask: (batch,seq_len), used to identify labeled tokens
             target_tags: (batch,seq_len)
-            turn_mask: (batch,) turn_mask[i]=0 for turn 1，turn_mask[i]=1 for turn 2
+            turn_mask: (batch,) turn_mask[i]=0 for turn 1, turn_mask[i]=1 for turn 2
         """
         rep, _ = self.bert(input, attention_mask, token_type_ids)
         rep = self.dropout(rep)
