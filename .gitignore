@@ -3,3 +3,7 @@ ACE2005
 
 .idea
 .vscode
+
+bert-base-uncased
+__pycache__
+
