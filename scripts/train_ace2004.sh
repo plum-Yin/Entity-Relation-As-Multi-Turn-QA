@@ -1,6 +1,6 @@
-HOME=/home/wangnan
-REPO=$HOME/ERE-MQA
-PRETRAINED_MODEL=/home/wangnan/pretrained_models/bert-base-uncased
+HOME=/mnt/d/pywork/Github/
+REPO=$HOME/Entity-Relation-As-Multi-Turn-QA
+PRETRAINED_MODEL_PATH=$HOME/pretrained_models/bert-base-uncased
 
 
 python $REPO/train.py \
